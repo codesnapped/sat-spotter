@@ -5,6 +5,8 @@ from skyfield.toposlib import GeographicPosition
 from rich.table import Table
 from rich.console import Console
 
+from sat_spotter.visibility import is_visible
+
 
 def group_passes(times, satellite: EarthSatellite, location: GeographicPosition, min_elevation: float) -> list:
     passes_list = []
@@ -24,6 +26,7 @@ def group_passes(times, satellite: EarthSatellite, location: GeographicPosition,
             "elevation": alt.degrees,
             "rise_azimuth": rise_az.degrees,
             "set_azimuth": set_az.degrees,
+            "is_visible": is_visible(satellite, location, times[i + 1]),
         }
         if alt.degrees > min_elevation:
             passes_list.append(pass_data)
@@ -51,6 +54,7 @@ def print_passes(passes: list, timezone: ZoneInfo, observer_lat: float, observer
     table.add_column("Max Elev", justify="center")
     table.add_column("Rise Dir", justify="center")
     table.add_column("Set Dir", justify="center")
+    table.add_column("Visible", justify="center")
     
     for p in passes:
         name = p['name']
@@ -69,6 +73,7 @@ def print_passes(passes: list, timezone: ZoneInfo, observer_lat: float, observer
 
         rise_dir = degrees_to_compass(p['rise_azimuth'])
         set_dir = degrees_to_compass(p['set_azimuth'])
-        table.add_row(event_date, name, rise_time, set_time, event_duration, elevation, rise_dir, set_dir)
+        visible = "[green]Yes[/green]" if p['is_visible'] else "No"
+        table.add_row(event_date, name, rise_time, set_time, event_duration, elevation, rise_dir, set_dir, visible)
 
     console.print(table)
