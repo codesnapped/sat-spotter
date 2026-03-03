@@ -39,12 +39,13 @@ def parse_tle(tle_data: str) -> dict:
     if tle_data is None:
         return None
     data = tle_data.strip().splitlines()
+    data = [line.strip() for line in data]
     if len(data) < 3 or not data[1].startswith("1 ") or not data[2].startswith("2 "):
         return None
     return {
-        "name": data[0].strip(),
-        "line1": data[1].strip(),
-        "line2": data[2].strip(),
+        "name": data[0],
+        "line1": data[1],
+        "line2": data[2],
     }
 
 def load_satellite(tle_data: dict) -> EarthSatellite:
