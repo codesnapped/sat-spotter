@@ -49,6 +49,10 @@ def run_search(args):
     else:
         data = []
 
+    if any(s['norad_id'] == chosen_satellite['norad_id'] for s in data):                   
+        console.print("Already tracked!")                                                  
+        return
+
     data.append(chosen_satellite)
     CONFIG_PATH.write_text(json.dumps(data, indent=2))
     console.print(JSON.from_data(data))

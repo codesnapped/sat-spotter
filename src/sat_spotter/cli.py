@@ -2,6 +2,7 @@
 
 import argparse
 
+from sat_spotter.list_sats import run_list
 from sat_spotter.passes import run_passes
 from sat_spotter.remove import run_remove
 from sat_spotter.search import run_search
@@ -22,7 +23,8 @@ def main():
     search_parser = subparsers.add_parser("search", help="Search for satellites on Celestrak")
     search_parser.add_argument("name", type=str, help="Satellite name to search for")
 
-    remove_parser = subparsers.add_parser("remove", help="Remove a satellite from tracked list")
+    subparsers.add_parser("remove", help="Remove a satellite from tracked list")
+    subparsers.add_parser("list", help="Display tracked satellites list")
 
     args = parser.parse_args()
     if args.command is None:
@@ -34,6 +36,8 @@ def main():
         run_search(args)
     elif args.command == "remove":
         run_remove()
+    elif args.command == "list":
+        run_list()
 
 
 if __name__ == "__main__":
