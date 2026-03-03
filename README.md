@@ -13,6 +13,8 @@ Built with a focus on European/ESA satellites and the Polish space sector.
 - Local timezone support (defaults to Europe/Warsaw)
 - TLE caching (4-hour expiry) to avoid repeated network requests
 - Configurable via CLI flags and `satellites.json`
+- Satellite management — search, add, list, and remove tracked satellites
+- Duplicate detection when adding satellites
 
 ## Installation
 
@@ -44,7 +46,22 @@ sat-spotter passes --tz Europe/Berlin
 
 # Search for a satellite and add to tracked list
 sat-spotter search sentinel
+
+# List currently tracked satellites
+sat-spotter list
+
+# Remove a satellite from tracked list
+sat-spotter remove
 ```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `sat-spotter passes` | Predict satellite passes (default) |
+| `sat-spotter search <name>` | Search Celestrak and add to tracked list |
+| `sat-spotter list` | Show currently tracked satellites |
+| `sat-spotter remove` | Remove a satellite from tracked list |
 
 ### Options
 
