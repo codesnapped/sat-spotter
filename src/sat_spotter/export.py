@@ -39,10 +39,14 @@ def export_json(passes, filepath, timezone):
     Path(filepath).write_text(json.dumps(data, indent=2))
 
 def export_file(passes, filename: str, timezone):
-    ext = Path(filename).suffix.lower()
-    if ext == ".csv":
-        export_csv(passes, filename, timezone)
-    elif ext == ".json":
-        export_json(passes, filename, timezone)
-    else:
-        print("Unsupported format, skipping export.")
+    try:
+        ext = Path(filename).suffix.lower()
+        if ext == ".csv":
+            export_csv(passes, filename, timezone)
+        elif ext == ".json":
+            export_json(passes, filename, timezone)
+        else:
+            print("Unsupported format, skipping export.")
+        print(f"Data exported to {filename}")
+    except OSError as e:
+        print(f"Failed to export: {e}")
