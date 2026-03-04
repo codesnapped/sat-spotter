@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo
 
 from sat_spotter.config import CONFIG_PATH
 from sat_spotter.display import group_passes, print_passes
+from sat_spotter.export import export_file
 from sat_spotter.location import observer
 from sat_spotter.predict import find_passes
 from sat_spotter.tle import fetch_tle, load_satellite, parse_tle
@@ -17,6 +18,7 @@ def run_passes(args):
     prediction_window: int = args.hours
     minimum_elevation_filter: int = args.elev
     show_only_visible: bool = args.visible_only
+    export_format: str | None = args.export
 
     satellites = json.load(open(CONFIG_PATH))
 
@@ -32,4 +34,6 @@ def run_passes(args):
         all_passes.extend(satellite_pass)
 
     all_passes.sort(key=lambda p: p['rise'].tt)
+    if export_format:
+        export_file(all_passes, export_format, chosen_timezone)
     print_passes(all_passes, chosen_timezone, observer_lat, observer_lon, show_only_visible)

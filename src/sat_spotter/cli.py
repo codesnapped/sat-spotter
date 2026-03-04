@@ -19,6 +19,7 @@ def main():
     passes_parser.add_argument("--elev", type=int, default=10, help="Minimum elevation filter")
     passes_parser.add_argument("--tz", type=str, default="Europe/Warsaw", help="Timezone for time display")
     passes_parser.add_argument("--visible-only", dest="visible_only", action="store_true", help="Only show visible passes")
+    passes_parser.add_argument("--export", type=str, help="Export passes to file (csv or json)")
 
     search_parser = subparsers.add_parser("search", help="Search for satellites on Celestrak")
     search_parser.add_argument("name", type=str, help="Satellite name to search for")
