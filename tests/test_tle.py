@@ -6,9 +6,9 @@ def test_parse_tle_valid():
   1 25544U 98067A   24088.54171806  .00016717  00000-0  30456-3 0  9993
   2 25544  51.6416 247.4627 0006703 130.5360 325.0288 15.49815328447129"""
     result = parse_tle(raw)
-    assert result["name"] == "ISS (ZARYA)"
-    assert result["line1"].startswith("1 ")
-    assert result["line2"].startswith("2 ")
+    assert result.name == "ISS (ZARYA)"
+    assert result.line1.startswith("1 ")
+    assert result.line2.startswith("2 ")
 
 def test_parse_tle_none():
     result = parse_tle(None)

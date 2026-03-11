@@ -3,6 +3,7 @@ from skyfield.api import EarthSatellite, load
 import time
 
 from sat_spotter.config import BASE_CACHE_DIR, DEFAULT_CACHE_DURATION
+from sat_spotter.models import TLEData
 
 def read_cache(norad_id: int) -> str | None:
     cache_file = BASE_CACHE_DIR / f"{norad_id}.tle"
@@ -35,21 +36,17 @@ def fetch_tle(norad_id: int) -> str | None:
         print(f"Failed to fetch TLE for {norad_id}: {e}")
         return None
 
-def parse_tle(tle_data: str) -> dict:
+def parse_tle(tle_data: str) -> TLEData | None:
     if tle_data is None:
         return None
     data = tle_data.strip().splitlines()
     data = [line.strip() for line in data]
     if len(data) < 3 or not data[1].startswith("1 ") or not data[2].startswith("2 "):
         return None
-    return {
-        "name": data[0],
-        "line1": data[1],
-        "line2": data[2],
-    }
+    return TLEData(name=data[0], line1=data[1], line2=data[2])
 
-def load_satellite(tle_data: dict) -> EarthSatellite:
+def load_satellite(tle_data: TLEData | None) -> EarthSatellite | None:
     if tle_data is None:
         return None
     ts = load.timescale()
-    return EarthSatellite(tle_data["line1"], tle_data["line2"], tle_data["name"], ts)
+    return EarthSatellite(tle_data.line1, tle_data.line2, tle_data.name, ts)

@@ -5,10 +5,11 @@ from skyfield.toposlib import GeographicPosition
 from rich.table import Table
 from rich.console import Console
 
+from sat_spotter.models import SatellitePass
 from sat_spotter.visibility import is_visible
 
 
-def group_passes(times, satellite: EarthSatellite, location: GeographicPosition, min_elevation: float) -> list:
+def group_passes(times, satellite: EarthSatellite, location: GeographicPosition, min_elevation: float) -> list[SatellitePass]:
     passes_list = []
     for i in range(0, len(times) - 2, 3):
         difference = satellite - location
@@ -18,20 +19,20 @@ def group_passes(times, satellite: EarthSatellite, location: GeographicPosition,
         _, rise_az, _ = rise_topo.altaz()
         set_topo = difference.at(times[i + 2])
         _, set_az, _ = set_topo.altaz()
-        pass_data = {
-            "name": satellite.name,
-            "rise": times[i],
-            "culminate": times[i + 1],
-            "set": times[i + 2],
-            "elevation": alt.degrees,
-            "rise_azimuth": rise_az.degrees,
-            "set_azimuth": set_az.degrees,
-            "is_visible": is_visible(satellite, location, times[i + 1]),
-            "satellite": satellite,
-            "location": location,
-        }
+        sat_pass = SatellitePass(
+            name=satellite.name,
+            rise=times[i],
+            culminate=times[i + 1],
+            set=times[i + 2],
+            elevation=alt.degrees,
+            rise_azimuth=rise_az.degrees,
+            set_azimuth=set_az.degrees,
+            is_visible=is_visible(satellite, location, times[i + 1]),
+            satellite=satellite,
+            location=location,
+        )
         if alt.degrees > min_elevation:
-            passes_list.append(pass_data)
+            passes_list.append(sat_pass)
     return passes_list
 
 def degrees_to_compass(deg: int) -> str:
@@ -60,23 +61,23 @@ def print_passes(passes: list, timezone: ZoneInfo, observer_lat: float, observer
         table.add_column("Visible", justify="center")
     
     for p in passes:
-        name = p['name']
-        rise_time = to_local_time(p['rise'], timezone)
-        set_time = to_local_time(p['set'], timezone)
-        event_duration = f"{((p['set'].tt - p['rise'].tt) * 24 * 60):.1f} min"
-        event_date = to_local_time(p['rise'], timezone, format='%d-%m')
+        name = p.name
+        rise_time = to_local_time(p.rise, timezone)
+        set_time = to_local_time(p.set, timezone)
+        event_duration = f"{((p.set.tt - p.rise.tt) * 24 * 60):.1f} min"
+        event_date = to_local_time(p.rise, timezone, format='%d-%m')
 
-        elevation = p['elevation']
+        elevation = p.elevation
         if elevation > 45:
-            elevation = f"[green]{p['elevation']:.0f}°[/green]"
+            elevation = f"[green]{p.elevation:.0f}°[/green]"
         elif elevation > 19:
-            elevation = f"[yellow]{p['elevation']:.0f}°[/yellow]"
+            elevation = f"[yellow]{p.elevation:.0f}°[/yellow]"
         else:
-            elevation = f"[red]{p['elevation']:.0f}°[/red]"
+            elevation = f"[red]{p.elevation:.0f}°[/red]"
 
-        rise_dir = degrees_to_compass(p['rise_azimuth'])
-        set_dir = degrees_to_compass(p['set_azimuth'])
-        visible = "[green]Yes[/green]" if p['is_visible'] else "No"
+        rise_dir = degrees_to_compass(p.rise_azimuth)
+        set_dir = degrees_to_compass(p.set_azimuth)
+        visible = "[green]Yes[/green]" if p.is_visible else "No"
         if not show_only_visible:
             table.add_row(event_date, name, rise_time, set_time, event_duration, elevation, rise_dir, set_dir, visible)
         else:
