@@ -13,6 +13,7 @@ Built with a focus on European/ESA satellites and the Polish space sector.
 - Local timezone support (defaults to Europe/Warsaw)
 - TLE caching (4-hour expiry) to avoid repeated network requests
 - Export passes to CSV or JSON files
+- **Sky chart** — polar plot of all satellite passes on a single chart
 - Configurable via CLI flags and `satellites.json`
 - Satellite management — search, add, list, and remove tracked satellites
 - Duplicate detection when adding satellites
@@ -25,6 +26,9 @@ Requires Python 3.12+.
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
+
+# With visualization support (sky chart)
+pip install -e ".[viz]"
 ```
 
 ## Usage
@@ -57,6 +61,9 @@ sat-spotter list
 
 # Remove a satellite from tracked list
 sat-spotter remove
+
+# Plot all passes on a polar sky chart
+sat-spotter plot
 ```
 
 ### Commands
@@ -67,6 +74,7 @@ sat-spotter remove
 | `sat-spotter search <name>` | Search Celestrak and add to tracked list |
 | `sat-spotter list` | Show currently tracked satellites |
 | `sat-spotter remove` | Remove a satellite from tracked list |
+| `sat-spotter plot` | Show all passes on a polar sky chart |
 
 ### Options
 
@@ -99,3 +107,4 @@ Or use `sat-spotter search <name>` to find and add satellites interactively.
 - [skyfield](https://rhodesmill.org/skyfield/) — satellite position computation (SGP4)
 - [httpx](https://www.python-httpx.org/) — HTTP client for TLE fetching
 - [rich](https://rich.readthedocs.io/) — terminal table formatting
+- [matplotlib](https://matplotlib.org/) — sky chart visualization (optional)

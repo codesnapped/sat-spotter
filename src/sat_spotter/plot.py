@@ -32,13 +32,14 @@ def plot_passes(passes_data):
         alt, az, _ = topocentric.altaz()
         azimuths = np.radians(az.degrees)
         radii = 90 - alt.degrees
-        line, = ax.plot(azimuths, radii)                                                       
+        line, = ax.plot(azimuths, radii, label=p['name'])                                                       
         color = line.get_color()
         ax.plot(azimuths[0], radii[0], 'o', color=color)   # rise point                      
         ax.plot(azimuths[-1], radii[-1], 'o', color=color)   # set point
-        ax.annotate('rise', xy=(azimuths[0], radii[0]))
-        ax.annotate('set', xy=(azimuths[-1], radii[-1]))
-        ax.annotate(p['name'], xy=(azimuths[25], radii[25]))
+
+    handles, labels = ax.get_legend_handles_labels()
+    unique = dict(zip(labels, handles))
+    ax.legend(unique.values(), unique.keys(), loc='upper right', bbox_to_anchor=(1.3, 1.1))
 
     plt.show()
 
