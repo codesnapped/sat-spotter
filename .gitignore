@@ -10,13 +10,6 @@ build/
 data/cache/
 *.bsp
 
-# Obsidian vault (local only)
-.obsidian/
-Home.md
-journal/
-learning/
-project/
-
 # IDE / OS
 .DS_Store
 .claude/
