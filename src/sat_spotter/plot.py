@@ -20,6 +20,9 @@ def plot_passes(passes_data):
     ax.set_yticks([0, 30, 60, 90])
     ax.set_yticklabels(['90°', '60°', '30°', '0°'])
 
+    names = list({p['name'] for p in passes_data})            
+    colors = {name: f'C{i}' for i, name in enumerate(names)}
+
     for p in passes_data:
         satellite: EarthSatellite = p['satellite']
         location: GeographicPosition = p['location']
@@ -32,8 +35,8 @@ def plot_passes(passes_data):
         alt, az, _ = topocentric.altaz()
         azimuths = np.radians(az.degrees)
         radii = 90 - alt.degrees
-        line, = ax.plot(azimuths, radii, label=p['name'])                                                       
-        color = line.get_color()
+        color = colors[p['name']]
+        ax.plot(azimuths, radii, label=p['name'], color=color)                                                      
         ax.plot(azimuths[0], radii[0], 'o', color=color)   # rise point                      
         ax.plot(azimuths[-1], radii[-1], 'o', color=color)   # set point
 
