@@ -20,8 +20,8 @@ def compute_all_passes(observer_lat: float, observer_lon: float, hours: int, min
         if satellite is None:
             print(f"Skipping {s['name']}")
             continue
-        times, _ = find_passes(satellite, observer_location, hours)
-        satellite_pass = group_passes(times, satellite, observer_location, min_elevation)
+        times, events = find_passes(satellite, observer_location, hours)
+        satellite_pass = group_passes(times, events, satellite, observer_location, min_elevation)
         all_passes.extend(satellite_pass)
     all_passes.sort(key=lambda p: p.rise.tt)
     return all_passes
