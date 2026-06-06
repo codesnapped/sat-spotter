@@ -9,30 +9,42 @@ from sat_spotter.models import SatellitePass
 from sat_spotter.visibility import is_visible
 
 
-def group_passes(times, satellite: EarthSatellite, location: GeographicPosition, min_elevation: float) -> list[SatellitePass]:
+def group_passes(times, events, satellite: EarthSatellite, location: GeographicPosition, min_elevation: float) -> list[SatellitePass]:
+    # Skyfield emits events as a flat stream (0=rise, 1=culminate, 2=set). Track
+    # state and only emit a pass once a full rise/culminate/set triple is seen,
+    # so passes clipped by the window edges (e.g. already up at the start) are
+    # dropped instead of mis-pairing the events.
     passes_list = []
-    for i in range(0, len(times) - 2, 3):
-        difference = satellite - location
-        topocentric = difference.at(times[i + 1])
-        alt, _, _ = topocentric.altaz()
-        rise_topo = difference.at(times[i])
-        _, rise_az, _ = rise_topo.altaz()
-        set_topo = difference.at(times[i + 2])
-        _, set_az, _ = set_topo.altaz()
-        sat_pass = SatellitePass(
-            name=satellite.name,
-            rise=times[i],
-            culminate=times[i + 1],
-            set=times[i + 2],
-            elevation=alt.degrees,
-            rise_azimuth=rise_az.degrees,
-            set_azimuth=set_az.degrees,
-            is_visible=is_visible(satellite, location, times[i + 1]),
-            satellite=satellite,
-            location=location,
-        )
-        if alt.degrees > min_elevation:
-            passes_list.append(sat_pass)
+    difference = satellite - location
+    rise_time = culminate_time = rise_azimuth = None
+    for time, event in zip(times, events):
+        if event == 0:  # rise
+            rise_time = time
+            _, az, _ = difference.at(time).altaz()
+            rise_azimuth = az.degrees
+            culminate_time = None
+        elif event == 1:  # culmination
+            culminate_time = time
+        elif event == 2:  # set
+            if rise_time is None or culminate_time is None:
+                rise_time = culminate_time = None
+                continue
+            alt, _, _ = difference.at(culminate_time).altaz()
+            _, set_az, _ = difference.at(time).altaz()
+            if alt.degrees > min_elevation:
+                passes_list.append(SatellitePass(
+                    name=satellite.name,
+                    rise=rise_time,
+                    culminate=culminate_time,
+                    set=time,
+                    elevation=alt.degrees,
+                    rise_azimuth=rise_azimuth,
+                    set_azimuth=set_az.degrees,
+                    is_visible=is_visible(satellite, location, culminate_time),
+                    satellite=satellite,
+                    location=location,
+                ))
+            rise_time = culminate_time = None
     return passes_list
 
 def degrees_to_compass(deg: int) -> str:
